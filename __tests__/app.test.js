@@ -55,4 +55,15 @@ describe('03_separation-of-concerns-demo routes', () => {
       quantity: 10,
     });
   });
+
+  it('ASYNC/AWAIT: retrieves an order in our database by an ID', async () => {
+    const res = await request(app)
+      .get('/api/v1/orders/1')
+
+
+    expect(res.body).toEqual({
+      id: '1',
+      quantity: 10,
+    });
+  });
 });
