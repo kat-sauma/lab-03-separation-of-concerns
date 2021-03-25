@@ -4,6 +4,9 @@ const request = require('supertest');
 const app = require('../lib/app');
 const Order = require('../lib/models/Order');
 
+jest.mock('../lib/utils/twilio');
+const twilio = require('../lib/utils/twilio');
+
 jest.mock('twilio', () => () => ({
   messages: {
     create: jest.fn(),
@@ -18,9 +21,11 @@ describe('03_separation-of-concerns-demo routes', () => {
   let order;
   beforeEach(async() => {
     order = await Order.insert({ quantity: 10 })
-  })
+
+    twilio.sendSms.mockReset(); 
+  });
   
-  it('creates a new order in our database and sends a text message', () => {
+  it('creates a new order in our database', () => {
     return request(app)
       .post('/api/v1/orders')
       .send({ quantity: 10 })
@@ -44,6 +49,12 @@ describe('03_separation-of-concerns-demo routes', () => {
     });
   });
 
+  it('ASYNC/AWAIT: send a text when creates an order from database', async () => {
+    const res = await request(app)
+      .post('/api/v1/orders')
+
+    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
+  });
 
   it('ASYNC/AWAIT: retrieves an order in our database', async () => {
     const res = await request(app)
@@ -65,5 +76,41 @@ describe('03_separation-of-concerns-demo routes', () => {
       id: '1',
       quantity: 10,
     });
+  });
+
+  it('ASYNC/AWAIT: updates order in database, by an ID', async () => {
+    const res = await request(app)
+      .put('/api/v1/orders/1')
+      .send({ quantity: 10 });
+
+    expect(res.body).toEqual({
+      id: '1',
+      quantity: 10,
+    });
+  });
+
+  it('ASYNC/AWAIT: send a text with an update to database, by an ID', async () => {
+    const res = await request(app)
+      .put('/api/v1/orders/1')
+      .send({ quantity: 10 });
+
+    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
+  });
+
+  it('ASYNC/AWAIT: deletes order in database, by an ID', async () => {
+    const res = await request(app)
+      .delete('/api/v1/orders/1')
+
+    expect(res.body).toEqual({
+      id: '1',
+      quantity: 10,
+    });
+  });
+
+  it('ASYNC/AWAIT: send a text when removing an order from database, by an ID', async () => {
+    const res = await request(app)
+      .delete('/api/v1/orders/1')
+
+    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
   });
 });
