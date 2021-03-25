@@ -43,17 +43,11 @@ describe('03_separation-of-concerns-demo routes', () => {
       .post('/api/v1/orders')
       .send({ quantity: 10 });
 
-    expect(res.body).toEqual({
+      expect(twilio.sendSms).toHaveBeenCalledTimes(1);
+      expect(res.body).toEqual({
       id: '2',
       quantity: 10,
     });
-  });
-
-  it('ASYNC/AWAIT: send a text when creates an order from database', async () => {
-    const res = await request(app)
-      .post('/api/v1/orders')
-
-    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
   });
 
   it('ASYNC/AWAIT: retrieves an order in our database', async () => {
@@ -83,34 +77,21 @@ describe('03_separation-of-concerns-demo routes', () => {
       .put('/api/v1/orders/1')
       .send({ quantity: 10 });
 
-    expect(res.body).toEqual({
+      expect(twilio.sendSms).toHaveBeenCalledTimes(1);
+      expect(res.body).toEqual({
       id: '1',
       quantity: 10,
     });
-  });
-
-  it('ASYNC/AWAIT: send a text with an update to database, by an ID', async () => {
-    const res = await request(app)
-      .put('/api/v1/orders/1')
-      .send({ quantity: 10 });
-
-    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
   });
 
   it('ASYNC/AWAIT: deletes order in database, by an ID', async () => {
     const res = await request(app)
       .delete('/api/v1/orders/1')
 
-    expect(res.body).toEqual({
+      expect(twilio.sendSms).toHaveBeenCalledTimes(1);
+      expect(res.body).toEqual({
       id: '1',
       quantity: 10,
     });
-  });
-
-  it('ASYNC/AWAIT: send a text when removing an order from database, by an ID', async () => {
-    const res = await request(app)
-      .delete('/api/v1/orders/1')
-
-    expect(twilio.sendSms).toHaveBeenCalledTimes(1);
   });
 });
